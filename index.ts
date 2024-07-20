@@ -69,6 +69,6 @@ const schema = buildSchema(`
     graphiql: true,
     }));
 
-app.listen(4000, () => {
+app.listen(3000, () => {
   console.log('Running a GraphQL API server at http://192.168.135.132:4000/graphql');
 });
