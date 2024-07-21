@@ -28,7 +28,7 @@ type CartType = {
   img?: number;
 };
 
-const products = [
+const productsArray = [
   {
     name: 'Cotton Classic',
     price: 15000,
@@ -64,6 +64,7 @@ const schema = buildSchema(`
     size: String!
     color: String!
     category: [String!]!
+    img: Float!
   }
 
   input CartItemInput {
@@ -81,7 +82,7 @@ const schema = buildSchema(`
 
   type Query {
     cart(userId: String): [CartItem]
-    products: [Product]
+    products: [Product!]
   }
 
   type Mutation {
@@ -91,7 +92,7 @@ const schema = buildSchema(`
 `);
 
 const root = {
-  products: () => products,
+  products: () => productsArray,
   cart: async ({ userId }: { userId: string }) => {
     return await cart.find({ userId }).exec();
   },
