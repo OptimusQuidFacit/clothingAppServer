@@ -68,7 +68,7 @@ const schema = buildSchema(`
     rootValue: root,
     graphiql: true,
     }));
-
-app.listen(3000, () => {
+const port= process.env.PORT || 3000
+app.listen(port, () => {
   console.log('Running a GraphQL API server at http://192.168.135.132:4000/graphql');
 });
