@@ -11,6 +11,7 @@
     "ts-node": "^10.9.2"
     
   },
+  "module": "comonjs",
   "scripts": {
     "dev": "nodemon --exec ts-node index.ts",
     "start": "node --exec ts-node index.ts"

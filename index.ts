@@ -1,4 +1,6 @@
-const { graphqlHTTP } = require("express-graphql");
+import { graphqlHTTP } from "express-graphql";
+
+// const { graphqlHTTP } = require("express-graphql");
 const mongoose = require("mongoose");
 const cartModel = require('./models/cart');
 const express = require('express');
@@ -13,6 +15,16 @@ mongoose.connect(process.env.MONGO_URL as string)
 })
 .catch((err: any)=>console.log(err));
 
+type cartType={
+    id: number,
+    name: string
+    unitPrice:number,
+    quantity: number,
+    total: number,
+    size?: string,
+    color?: string,
+    category?: string[],
+  }
 const products = [
     {
         name: 'Cotton Classic',
@@ -47,6 +59,17 @@ const schema = buildSchema(`
         size: String!,
         color: String!,
         category: [String!]!,
+    },
+    input cartItemInput {
+        productId: Float!,
+        userId: String!,
+        name: String!,
+        unitPrice:Float!,
+        quantity: Int!,
+        total: Float!,
+        size: String!,
+        color: String!,
+        category: [String!]!,
     }
     
     type Query {
@@ -55,7 +78,7 @@ const schema = buildSchema(`
     },
 
     type Mutation {
-        addToCart(item: cartItem): cartItem
+        addToCart(item: cartItemInput): cartItem
         deleteFromCart(id: String): cartItem
     }    
     `)
@@ -64,7 +87,7 @@ const schema = buildSchema(`
     const root = {
         product: ()=> products,
         cart: async ({userId}: {userId: string}) => {return (await cartModel.find({userId: userId}).toArray())},
-        addCart: async ({cartItem}: any)=>{
+        addCart: async ({cartItem}: {cartItem: cartType})=>{
             try{
                 // await cartModel.insertOne(cartItem);
                 let cart = new cartModel(cartItem)
@@ -88,7 +111,7 @@ const schema = buildSchema(`
     graphiql: true,
     }));
 
-    app.get('/', (req: Request, res: any)=>res.send('Server is running'))
+app.get('/', (req: Request, res: any)=>res.send('Server is running'))
 const port= process.env.PORT || 3000
 app.listen(port, () => {
   console.log('Running a GraphQL API server at https://clothing-app-server.vercel.app');
