@@ -12,12 +12,28 @@ mongoose.connect(process.env.MONGO_URL as string)
     console.log('Successful connection');
 })
 .catch((err: any)=>console.log(err));
+
+const products = [
+    {
+        name: 'Cotton Classic',
+        price: 15000,
+        category: ['Women', 'white'],
+        colors:['black', 'white', 'red'],
+        sizes: ['S','M', 'L', ],
+    },
+    {
+        name: 'Classic Men\'s Suit',
+        price: 25000,
+        category: ['Men', 'black'],
+        colors:['black', 'brown', 'grey'],
+        sizes: ['S','M', 'L', ],
+    },
+]
 const schema = buildSchema(`
     type product {
         name: String!,
         price: Float!,
         category: [String!]!,
-        img: Float,
         colors: [String!]!,
         sizes: [String!]!
     },
@@ -35,6 +51,7 @@ const schema = buildSchema(`
     
     type Query {
         cart(userId: String): [cartItem]
+        product: [product]
     },
 
     type Mutation {
@@ -43,7 +60,9 @@ const schema = buildSchema(`
     }    
     `)
 
+
     const root = {
+        product: ()=> products,
         cart: async ({userId}: {userId: string}) => {return (await cartModel.find({userId: userId}).toArray())},
         addCart: async ({cartItem}: any)=>{
             try{
@@ -68,7 +87,9 @@ const schema = buildSchema(`
     rootValue: root,
     graphiql: true,
     }));
+
+    app.get('/', (req: Request, res: any)=>res.send('Server is running'))
 const port= process.env.PORT || 3000
 app.listen(port, () => {
-  console.log('Running a GraphQL API server at http://192.168.135.132:4000/graphql');
+  console.log('Running a GraphQL API server at https://clothing-app-server.vercel.app');
 });
