@@ -99,14 +99,15 @@ const schema = buildSchema(`
 
 const root = {
   products: () => productsArray,
-  cart: async ({ userId }: { userId: string }) => {
-    return await cart.find({ userId }).lean();
+  cart: async ({ userId }: { userId: string } ) => {
+    return await cart.find({userId}).exec();
   },
-  addToCart: async ({ item }: { item: any }) => {
+//   Mutation: {
+    addToCart: async ({item}: {item: any}) => {
     try {
       const newCart = new cart(item);
       const newCartItem = await newCart.save();
-      return newCartItem.toJSON();
+      return newCartItem;
     } catch (err) {
       console.log(err);
       return null;
@@ -120,8 +121,8 @@ const root = {
       console.log(err);
       return null;
     }
-  },
-};
+  },}
+// };
 
 app.use('/graphql', graphqlHTTP({
   schema: schema,
