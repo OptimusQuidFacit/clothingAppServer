@@ -96,7 +96,7 @@ const root = {
   cart: async ({ userId }: { userId: string }) => {
     return await cart.find({ userId }).exec();
   },
-  addToCart: async ({ item }: { item: CartType }) => {
+  addToCart: async ({ item }: { item: any }) => {
     try {
       const newCart = new cart(item);
       const newCartItem = await newCart.save();
