@@ -100,7 +100,7 @@ const schema = buildSchema(`
 const root = {
   products: () => productsArray,
   cart: async ({ userId }: { userId: string }) => {
-    return await cart.find({ userId }).exec();
+    return await cart.find({ userId }).lean();
   },
   addToCart: async ({ item }: { item: any }) => {
     try {
