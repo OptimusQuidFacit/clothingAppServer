@@ -75,9 +75,16 @@ type Cart {
     userId: String!
     cart: [CartItem!]!
 }
-input CartInput {
-    userId: String!
-    cart: [CartItem!]!
+input CartItemInput {
+    productId: Float!
+    name: String!
+    unitPrice: Float!
+    quantity: Int!
+    total: Float!
+    size: String!
+    color: String!
+    category: [String!]!
+    img: Float!
 }
 
   type Query {
@@ -86,7 +93,7 @@ input CartInput {
   }
 
   type Mutation {
-    updateCart(items: [CartItem], userId:String): Cart
+    updateCart(items: [CartItemInput], userId:String): Cart
     deleteFromCart(id: String): CartItem
   }
 `);
