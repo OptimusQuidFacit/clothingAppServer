@@ -86,7 +86,7 @@ input CartInput {
   }
 
   type Mutation {
-    updateCart(item: CartInput, userId:String): CartItem
+    updateCart(item: CartInput, userId:String): Cart
     deleteFromCart(id: String): CartItem
   }
 `);
@@ -97,16 +97,16 @@ const root = {
     return await cart.findOne({userId}).exec();
   },
 //   Mutation: {
-    updateCart: async ({item, userId}: {item: any, userId:string}) => {
+    updateCart: async ({items, userId}: {items: any, userId:string}) => {
     try {
         const cartExists= await cart.findOne({userId})
         if(cartExists){
-            let value= await cart.findOneAndUpdate({userId}, {cart:item});
+            let value= await cart.findOneAndUpdate({userId}, {cart:items});
             return value;
         }
         const newCart = new cart({
             userId,
-            cart:item
+            cart:items
         });
         const newCartItem = await newCart.save();
       return newCartItem;
