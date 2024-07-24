@@ -86,7 +86,7 @@ input CartInput {
   }
 
   type Mutation {
-    updateCart(item: CartInput, userId:String): Cart
+    updateCart(items: [CartItem], userId:String): Cart
     deleteFromCart(id: String): CartItem
   }
 `);
