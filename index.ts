@@ -62,7 +62,6 @@ const schema = buildSchema(`
 
   type CartItem {
     productId: Float!
-    userId: String!
     name: String!
     unitPrice: Float!
     quantity: Int!
@@ -71,28 +70,23 @@ const schema = buildSchema(`
     color: String!
     category: [String!]!
     img: Float!
-  }
-
-  input CartItemInput {
-    productId: Float!
+  } 
+type Cart {
     userId: String!
-    name: String!
-    unitPrice: Float!
-    quantity: Int!
-    total: Float!
-    size: String!
-    color: String!
-    category: [String!]!
-    img: Float!
-  }
+    cart: [CartItem!]!
+}
+input CartInput {
+    userId: String!
+    cart: [CartItem!]!
+}
 
   type Query {
-    cart(userId: String): [CartItem]
+    cart(userId: String): [Cart]
     products: [Product!]
   }
 
   type Mutation {
-    addToCart(item: CartItemInput): CartItem
+    updateCart(item: CartInput, userId:String): CartItem
     deleteFromCart(id: String): CartItem
   }
 `);
@@ -100,20 +94,28 @@ const schema = buildSchema(`
 const root = {
   products: () => productsArray,
   cart: async ({ userId }: { userId: string } ) => {
-    return await cart.find({userId}).exec();
+    return await cart.findOne({userId}).exec();
   },
 //   Mutation: {
-    addToCart: async ({item}: {item: any}) => {
+    updateCart: async ({item, userId}: {item: any, userId:string}) => {
     try {
-      const newCart = new cart(item);
-      const newCartItem = await newCart.save();
+        const cartExists= await cart.findOne({userId})
+        if(cartExists){
+            let value= await cart.findOneAndUpdate({userId}, {cart:item});
+            return value;
+        }
+        const newCart = new cart({
+            userId,
+            cart:item
+        });
+        const newCartItem = await newCart.save();
       return newCartItem;
     } catch (err) {
       console.log(err);
       return null;
     }
   },
-  deleteFromCart: async ({ id }: { id: string }) => {
+    deleteFromCart: async ({ id }: { id: string }) => {
     try {
       const deletedItem = await cart.findByIdAndDelete(id).exec();
       return deletedItem;
@@ -121,7 +123,7 @@ const root = {
       console.log(err);
       return null;
     }
-  },}
+    },}
 // };
 
 app.use('/graphql', graphqlHTTP({
