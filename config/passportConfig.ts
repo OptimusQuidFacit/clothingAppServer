@@ -52,10 +52,10 @@ module.exports= (passport:any)=>{
                 const user = await usersModel.findOne({ email: email })
                 if (!user) {
                
-                    return done(null, false); 
+                    return done(null, false, {error:"Password is incorrect"}); 
                 }
                 if(password!==user.password){
-                    return done(null, false);
+                    return done(null, false, {error:"Password is incorrect"});
                 }
                 return done(null, user);
             }

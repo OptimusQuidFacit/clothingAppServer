@@ -46,7 +46,7 @@ router.get('/google/callback',
       if (!user) return res.status(400).json(info); // Authentication failed, send the info object as a response
       req.logIn(user, (err: any) => {
         if (err) return next(err); // Handle errors that occurred during login
-        return res.json(req.session.passport); // Authentication succeeded, send the user object as a response
+        return res.json(req.session); // Authentication succeeded, send the user object as a response
       });
     })(req, res, next);
   });
