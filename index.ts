@@ -4,10 +4,17 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { buildSchema } from 'graphql';
 import cart from './models/cart';
+import MongoStore from 'connect-mongo';
+const passportConfig = require("./config/passportConfig");
+const session = require("express-session");
+const passport= require('passport')
+const authRouter= require('./routers/auth');
 
 dotenv.config();
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({extended:false}));
 
 const connectToDatabase = async () => {
     try {
@@ -19,7 +26,7 @@ const connectToDatabase = async () => {
     }
   };
 
-  connectToDatabase();
+connectToDatabase();
 
 type CartType = {
   productId: number;
@@ -139,8 +146,31 @@ app.use('/graphql', graphqlHTTP({
   graphiql: true,
 }));
 
-app.get('/', (req: Request, res: Response) => res.send('Server is running'));
 
+//passport configurations
+passportConfig(passport);
+try{
+
+    app.use(session({
+        secret: 'keyboard cat',
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({mongoUrl: process.env.MONGO_URL})
+      }));
+}
+catch(err){
+    console.log(err)
+}
+
+app.use(express.json());
+app.use(express.urlencoded({extended:false}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.get('/', (req: Request, res: Response) => res.send('Server is running'));
+app.use('/auth', authRouter)
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log('Running a GraphQL API server at http://localhost:' + port);
