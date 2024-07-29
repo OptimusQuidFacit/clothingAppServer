@@ -174,15 +174,13 @@ app.get('/', (req: Request, res: Response) => res.send('Server is running'));
 app.use('/auth', authRouter)
 
 app.use('/graphql', 
-  graphqlHTTP({
+  graphqlHTTP((req: any, res: any)=>({
     schema: schema,
     rootValue: root,
     graphiql: true,
-    context: async ({req})=>{
-      const user = req.user;
-      return { user: user };
-    },
-  }));
+    context: {user: req.user}
+  })
+));
   
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
