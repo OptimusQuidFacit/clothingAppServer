@@ -154,7 +154,10 @@ graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true,
-  context: context,
+  context: async ({req})=>{
+    const user = req.user;
+    return { user: user };
+  },
 }));
 
 
