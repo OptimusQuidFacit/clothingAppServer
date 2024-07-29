@@ -116,7 +116,7 @@ const root = {
 //   Mutation: {
     updateCart: async ({items, userId}: {items: any, userId:string}, context:any) => {
     if(!context.user){
-      throw new Error("You are not allowed to do this, please sign in")
+      throw new Error(`You are not allowed to do this, please sign in ${context.user}`)
     }
       try {
         const cartExists= await cart.findOne({userId})
@@ -145,20 +145,7 @@ const root = {
     }
     },}
 // };
-const context = async ({req})=>{
-  const user = req.user;
-  return { user };
-}
-app.use('/graphql', 
-graphqlHTTP({
-  schema: schema,
-  rootValue: root,
-  graphiql: true,
-  context: async ({req})=>{
-    const user = req.user;
-    return { user: user };
-  },
-}));
+
 
 
 //passport configurations
@@ -185,6 +172,18 @@ app.use(passport.session());
 
 app.get('/', (req: Request, res: Response) => res.send('Server is running'));
 app.use('/auth', authRouter)
+
+app.use('/graphql', 
+  graphqlHTTP({
+    schema: schema,
+    rootValue: root,
+    graphiql: true,
+    context: async ({req})=>{
+      const user = req.user;
+      return { user: user };
+    },
+  }));
+  
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log('Running a GraphQL API server at http://localhost:' + port);
