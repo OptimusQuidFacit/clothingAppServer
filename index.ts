@@ -139,11 +139,16 @@ const root = {
     }
     },}
 // };
-
-app.use('/graphql', graphqlHTTP({
+const context = async ({req})=>{
+  const user = req.user;
+  return { user };
+}
+app.use('/graphql', passport.authenticate('local', {session:true}), 
+graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true,
+  context,
 }));
 
 
