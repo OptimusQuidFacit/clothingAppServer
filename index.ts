@@ -143,12 +143,12 @@ const context = async ({req})=>{
   const user = req.user;
   return { user };
 }
-app.use('/graphql', passport.authenticate('local', {session:true}), 
+app.use('/graphql', 
 graphqlHTTP({
   schema: schema,
   rootValue: root,
   graphiql: true,
-  context,
+  context: context,
 }));
 
 
