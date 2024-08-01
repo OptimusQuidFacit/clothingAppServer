@@ -111,7 +111,7 @@ const root = {
     if(!context.user){
       throw new Error('You are not allowed to do this')
     }
-    return await cart.findOne({userId}).exec();
+    return await cart.findOne({_id: userId}).exec();
   },
 //   Mutation: {
     updateCart: async ({items, userId}: {items: any, userId:string}, context:any) => {
