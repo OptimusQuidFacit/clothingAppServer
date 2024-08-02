@@ -95,7 +95,7 @@ input CartItemInput {
 }
 
   type Query {
-    cart(userId: String): [Cart]
+    cart(userId: String): [CartItem]
     products: [Product!]
   }
 
@@ -108,10 +108,11 @@ input CartItemInput {
 const root = {
   products: () => productsArray,
   cart: async ({ userId }: { userId: string }, context:any ) => {
-    if(!context.user){
-      throw new Error('You are not allowed to do this')
-    }
-    return await cart.findOne({_id: userId}).exec();
+    // if(!context.user){
+    //   throw new Error('You are not allowed to do this')
+    // }
+    const cartObject= await cart.findOne({userId});
+    return cartObject?.cart;
   },
 //   Mutation: {
     updateCart: async ({items, userId}: {items: any, userId:string}, context:any) => {
