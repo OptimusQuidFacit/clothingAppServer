@@ -108,17 +108,17 @@ input CartItemInput {
 const root = {
   products: () => productsArray,
   cart: async ({ userId }: { userId: string }, context:any ) => {
-    // if(!context.user){
-    //   throw new Error('You are not allowed to do this')
-    // }
+    if(!context.user){
+      throw new Error('You are not allowed to do this')
+    }
     const cartObject= await cart.findOne({userId});
     return cartObject?.cart;
   },
 //   Mutation: {
     updateCart: async ({items, userId}: {items: any, userId:string}, context:any) => {
-    // if(!context.user){
-    //   throw new Error(`You are not allowed to do this, please sign in ${context.user}`)
-    // }
+    if(!context.user){
+      throw new Error(`You are not allowed to do this, please sign in ${context.user}`)
+    }
       try {
         const cartExists= await cart.findOne({userId})
         if(cartExists){
