@@ -174,7 +174,7 @@ app.use(passport.session());
 app.get('/', (req: Request, res: Response) => res.send('Server is running'));
 app.use('/auth', authRouter)
 
-app.use('/graphql', 
+app.use('/graphql', passport.authenticate("jwt", {session:false}) ,
   graphqlHTTP((req: any, res: any)=>({
     schema: schema,
     rootValue: root,

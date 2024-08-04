@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-
+import bcrypt from "bcryptjs"
 const express= require('express');
 const passport = require('passport');
 const user = require('../models/user');
+const jwt = require("jsonwebtoken");
 const router= express.Router();
 
 router.get('/google',
@@ -29,6 +30,9 @@ router.get('/google/callback',
     try{
         req.body.googleId= Math.floor(100 + Math.random()*10000);
         req.body.firstName= req.body.displayName.split(' ')[0];
+        let salt = await bcrypt.genSalt(10);
+        let password= await bcrypt.hash(req.body.password, salt);
+        req.body.password= password;
        if ( req.body.displayName.split(' ')[1]){
         req.body.lastName=req.body.displayName.split(' ')[1];
        }
@@ -46,7 +50,8 @@ router.get('/google/callback',
       if (!user) return res.status(400).json(info); // Authentication failed, send the info object as a response
       req.logIn(user, (err: any) => {
         if (err) return next(err); // Handle errors that occurred during login
-        return res.json(req.session); // Authentication succeeded, send the user object as a response
+        let token= jwt.sign({id:user._id}, process.env.JWT_SEC, {expiresIn: "3d"})
+        return res.json({session: req.session, token}); // Authentication succeeded, send the user object as a response
       });
     })(req, res, next);
   });

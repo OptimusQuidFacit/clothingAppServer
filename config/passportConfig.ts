@@ -1,8 +1,16 @@
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
-var LocalStrategy= require('passport-local').Strategy
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LocalStrategy= require('passport-local').Strategy
+const JwtStrategy= require('passport-jwt').Strategy
+const ExtractJwt= require('passport-jwt').ExtractJwt
 const usersModel = require('../models/user');
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs"
+dotenv.config()
 
-
+const jwtOptions={
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.JWT_SEC
+}
 
 module.exports= (passport:any)=>{
     passport.use(new GoogleStrategy({
@@ -52,9 +60,12 @@ module.exports= (passport:any)=>{
                 const user = await usersModel.findOne({ email: email })
                 if (!user) {
                
-                    return done(null, false, {error:"Password is incorrect"}); 
+                    return done(null, false, {error:"User does not exist"}); 
                 }
-                if(password!==user.password){
+
+                let passwordIsCorrect= await bcrypt.compare(password, user.password)
+
+                if(passwordIsCorrect){
                     return done(null, false, {error:"Password is incorrect"});
                 }
                 return done(null, user);
@@ -81,4 +92,21 @@ module.exports= (passport:any)=>{
           return cb(null, user);
         });
       });
+
+      passport.use(
+        new JwtStrategy(jwtOptions, async (jwt_payload: any, done: any)=>{
+            try{
+                let user = usersModel.findOne({_id: jwt_payload.id})
+                if(user){
+                    return done(null, user)
+                }
+                else{
+                    return done(null, false)
+                }
+            }
+            catch(err){
+                return done(err, false)
+            }
+        })
+      )
 }
