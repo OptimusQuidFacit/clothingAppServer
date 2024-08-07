@@ -65,7 +65,7 @@ module.exports= (passport:any)=>{
 
                 let passwordIsCorrect= await bcrypt.compare(password, user.password)
 
-                if(passwordIsCorrect){
+                if(!passwordIsCorrect){
                     return done(null, false, {error:"Password is incorrect"});
                 }
                 return done(null, user);
