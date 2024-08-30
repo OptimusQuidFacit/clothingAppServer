@@ -5,9 +5,25 @@ const passport = require('passport');
 const user = require('../models/user');
 const jwt = require("jsonwebtoken");
 const router= express.Router();
+const crypto = require("crypto");
+const codeVerifier = crypto.randomBytes(32).toString('hex');
+// router.get('/google',
+//   passport.authenticate('google', { scope: ['profile'] }));
 
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile'] }));
+  router.get('/google', (req:any, res:any, next:NextFunction) => {
+    const codeVerifier = crypto.randomBytes(32).toString('hex');
+    req.session.codeVerifier = codeVerifier;
+    const codeChallenge = crypto
+        .createHash('sha256')
+        .update(codeVerifier)
+        .digest('base64url');
+
+    passport.authenticate('google', {
+        scope: ['profile'],
+        state: JSON.stringify({ codeChallenge }),
+        codeChallengeMethod: 'S256'
+    })(req, res, next);
+});
 
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
