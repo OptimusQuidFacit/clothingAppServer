@@ -3,9 +3,17 @@ const LocalStrategy= require('passport-local').Strategy
 const JwtStrategy= require('passport-jwt').Strategy
 const ExtractJwt= require('passport-jwt').ExtractJwt
 const usersModel = require('../models/user');
+const crypto = require('crypto')
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs"
-dotenv.config()
+dotenv.config();
+
+const codeVerifier = crypto.randomBytes(32).toString('hex');
+
+const codeChallenge = crypto
+  .createHash('sha256')
+  .update(codeVerifier)
+  .digest('base64url');
 
 const jwtOptions={
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -16,7 +24,9 @@ module.exports= (passport:any)=>{
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/callback"
+        callbackURL: "/auth/google/callback",
+        codeChallenge: codeChallenge, // Pass code challenge here
+        codeChallengeMethod: 'S256', // Required if using PKCE
       },
       async (accessToken:any, refreshToken:any, profile:any, cb:any) => {
 
@@ -57,7 +67,7 @@ module.exports= (passport:any)=>{
            
             try {
 
-                const user = await usersModel.findOne({ email: email })
+                const user = await usersModel.findOne({ email: email }).lean()
                 if (!user) {
                
                     return done(null, false, {error:"User does not exist"}); 
@@ -66,7 +76,7 @@ module.exports= (passport:any)=>{
                 let passwordIsCorrect= await bcrypt.compare(password, user.password)
 
                 if(!passwordIsCorrect){
-                    return done(null, false, {error:"Password is incorrect"});
+                    return done(null, false, {error:`Password is incorrect ${passwordIsCorrect}`});
                 }
                 return done(null, user);
             }
