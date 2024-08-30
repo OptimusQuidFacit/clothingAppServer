@@ -11,40 +11,43 @@ const crypto = require("crypto");
 // router.get('/google',
 //   passport.authenticate('google', { scope: ['profile'] }));
 
-  router.get('/google', (req:any, res:any, next:NextFunction) => {
-    const codeVerifier = crypto.randomBytes(32).toString('hex');
-    req.session.codeVerifier = codeVerifier;
-    const codeChallenge = crypto
-        .createHash('sha256')
-        .update(codeVerifier)
-        .digest('base64url');
-
-    passport.authenticate('google', {
-        scope: ['profile', 'email'],
-        state: JSON.stringify({ codeChallenge }),
-        codeChallengeMethod: 'S256',
-        session:true
-    })(req, res, next);
-});
-
-router.get('/google/callback', (req: any, res: any, next: NextFunction) => {
+router.get('/google', (req:any, res:any, next:NextFunction) => {
   const codeVerifier = crypto.randomBytes(32).toString('hex');
   req.session.codeVerifier = codeVerifier;
-    const codeChallenge = crypto
-        .createHash('sha256')
-        .update(codeVerifier)
-        .digest('base64url'); // Retrieve from session
 
-  // Ensure the verifier is passed correctly
+  const codeChallenge = crypto
+      .createHash('sha256')
+      .update(codeVerifier)
+      .digest('base64url');
+
+  console.log("Generated Code Verifier:", codeVerifier);
+  console.log("Generated Code Challenge:", codeChallenge);
+
+  passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      state: JSON.stringify({ codeChallenge }),
+      codeChallenge: codeChallenge,
+      codeChallengeMethod: 'S256',
+  })(req, res, next);
+});
+
+
+router.get('/google/callback', (req:any, res:any, next:NextFunction) => {
+  const codeVerifier = req.session.codeVerifier;
+
+  console.log("Retrieved Code Verifier:", codeVerifier);
+
   if (!codeVerifier) {
       return res.status(400).send('Missing code verifier');
   }
 
   passport.authenticate('google', {
-      session: true,
-      codeVerifier: codeVerifier, // Pass verifier
+      failureRedirect: '/login',
+      successRedirect: '/',
+      codeVerifier: codeVerifier, // Pass the code verifier here
   })(req, res, next);
 });
+
 
 // router.get('/google/callback', 
 //   passport.authenticate('google', { failureRedirect: '/login' }),
