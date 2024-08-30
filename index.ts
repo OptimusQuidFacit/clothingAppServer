@@ -153,12 +153,13 @@ const root = {
 passportConfig(passport);
 try{
 
-    app.use(session({
-        secret: 'keyboard cat',
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({mongoUrl: process.env.MONGO_URL})
-      }));
+  app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true, // Change to true for debugging
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
+    cookie: { secure: true } // Set to true if using HTTPS
+}));
 }
 catch(err){
     console.log(err)
