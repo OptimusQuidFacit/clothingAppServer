@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs"
+import { session } from "passport";
 const express= require('express');
 const passport = require('passport');
 const user = require('../models/user');
@@ -21,12 +22,18 @@ const crypto = require("crypto");
     passport.authenticate('google', {
         scope: ['profile', 'email'],
         state: JSON.stringify({ codeChallenge }),
-        codeChallengeMethod: 'S256'
+        codeChallengeMethod: 'S256',
+        session:true
     })(req, res, next);
 });
 
 router.get('/google/callback', (req: any, res: any, next: NextFunction) => {
-  const codeVerifier = req.session.codeVerifier; // Retrieve from session
+  const codeVerifier = crypto.randomBytes(32).toString('hex');
+  req.session.codeVerifier = codeVerifier;
+    const codeChallenge = crypto
+        .createHash('sha256')
+        .update(codeVerifier)
+        .digest('base64url'); // Retrieve from session
 
   // Ensure the verifier is passed correctly
   if (!codeVerifier) {
@@ -34,9 +41,7 @@ router.get('/google/callback', (req: any, res: any, next: NextFunction) => {
   }
 
   passport.authenticate('google', {
-      failureRedirect: '/login',
-      successRedirect: '/',
-      session: false,
+      session: true,
       codeVerifier: codeVerifier, // Pass verifier
   })(req, res, next);
 });
