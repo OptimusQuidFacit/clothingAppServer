@@ -1,9 +1,9 @@
-const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const LocalStrategy= require('passport-local').Strategy;
 const JwtStrategy= require('passport-jwt').Strategy;
 const ExtractJwt= require('passport-jwt').ExtractJwt;
 const usersModel = require('../models/user');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 dotenv.config();
