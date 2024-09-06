@@ -9,11 +9,11 @@ import bcrypt from "bcryptjs";
 dotenv.config();
 
 // Generate a code verifier and challenge
-const codeVerifier = crypto.randomBytes(32).toString('hex');
-const codeChallenge = crypto
-  .createHash('sha256')
-  .update(codeVerifier)
-  .digest('base64url');
+// const codeVerifier = crypto.randomBytes(32).toString('hex');
+// const codeChallenge = crypto
+//   .createHash('sha256')
+//   .update(codeVerifier)
+//   .digest('base64url');
 
 // JWT options
 const jwtOptions = {
@@ -31,15 +31,6 @@ module.exports = (passport:any) => {
       },
       async (req:any, accessToken:any, refreshToken:any, profile:any, cb:any) => {
         try {
-            // Retrieve code_verifier from session
-            const codeVerifier = req.session.codeVerifier;
-            if (!codeVerifier) {
-                throw new Error("Missing code_verifier.");
-            }
-
-            // You can validate the codeVerifier here if needed
-            // e.g., check if it matches the original codeChallenge
-            // Generate a new user object
             const newUser = new usersModel({
                 googleId: profile.id,
                 firstName: profile.name.givenName,

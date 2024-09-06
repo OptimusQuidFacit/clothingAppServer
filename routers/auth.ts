@@ -7,7 +7,7 @@ const passport = require('passport');
 const user = require('../models/user');
 const jwt = require("jsonwebtoken");
 const router= express.Router();
-const crypto = require("crypto");
+// const crypto = require("crypto");
 // const codeVerifier = crypto.randomBytes(32).toString('hex');
 // router.get('/google',
 //   passport.authenticate('google', { scope: ['profile'] }));
