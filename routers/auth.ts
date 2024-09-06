@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs"
 import { session } from "passport";
+import { generatePKCE } from "../config/pkce-utils";
 const express= require('express');
 const passport = require('passport');
 const user = require('../models/user');
@@ -12,39 +13,26 @@ const crypto = require("crypto");
 //   passport.authenticate('google', { scope: ['profile'] }));
 
 router.get('/google', (req:any, res:any, next:NextFunction) => {
-  const codeVerifier = crypto.randomBytes(32).toString('hex');
+  const { codeVerifier, codeChallenge } = generatePKCE();
+
+  // Store the code verifier in the session or globally
   req.session.codeVerifier = codeVerifier;
 
-  const codeChallenge = crypto
-      .createHash('sha256')
-      .update(codeVerifier)
-      .digest('base64url');
-
-  console.log("Generated Code Verifier:", codeVerifier);
-  console.log("Generated Code Challenge:", codeChallenge);
-
+  // Redirect to Google's OAuth endpoint with the code challenge
   passport.authenticate('google', {
-      scope: ['profile', 'email'],
-      state: JSON.stringify({ codeChallenge }),
-      codeChallenge: codeChallenge,
-      codeChallengeMethod: 'S256',
+    scope: ['profile', 'email'],
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
   })(req, res, next);
 });
 
 
 router.get('/google/callback', (req:any, res:any, next:NextFunction) => {
-  const codeVerifier = req.session.codeVerifier;
+  const storedCodeVerifier = req.session.codeVerifier;
 
-  console.log("Retrieved Code Verifier:", codeVerifier);
-
-  if (!codeVerifier) {
-      return res.status(400).send('Missing code verifier');
-  }
-
+  // Pass the code verifier to the token exchange process
   passport.authenticate('google', {
-      failureRedirect: '/login',
-      successRedirect: '/',
-      codeVerifier: codeVerifier, // Pass the code verifier here
+    code_verifier: storedCodeVerifier
   })(req, res, next);
 });
 
