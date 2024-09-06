@@ -30,8 +30,11 @@ codeVerifierGlobal=codeVerifier
 
 
 router.get('/google/callback', (req:any, res:any, next:NextFunction) => {
-  const storedCodeVerifier = codeVerifierGlobal;
-
+  const storedCodeVerifier = req.session.codeVerifier;
+  
+  if (!storedCodeVerifier) {
+    return res.status(400).send('Missing code verifier', storedCodeVerifier);
+  }
   // Pass the code verifier to the token exchange process
   passport.authenticate('google', {
     code_verifier: storedCodeVerifier

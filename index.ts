@@ -154,7 +154,7 @@ passportConfig(passport);
 try{
 
   app.use(session({
-    secret: 'keyboard cat',
+    secret: 'Hi cat',
     resave: false,
     saveUninitialized: true, // Change to true for debugging
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),

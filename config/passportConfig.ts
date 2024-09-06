@@ -25,7 +25,7 @@ module.exports = (passport:any) => {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/callback",
+        callbackURL: "https://clothing-app-server.vercel.app/auth/google/callback",
         passReqToCallback: true, // Enable passing request object to callback
         codeChallengeMethod: 'S256' // Required if using PKCE
       },
