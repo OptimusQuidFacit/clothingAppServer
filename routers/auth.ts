@@ -8,13 +8,15 @@ const user = require('../models/user');
 const jwt = require("jsonwebtoken");
 const router= express.Router();
 // const crypto = require("crypto");
-// const codeVerifier = crypto.randomBytes(32).toString('hex');
+let codeVerifierGlobal: string;
+// let codeChallenge: string;
+
 // router.get('/google',
 //   passport.authenticate('google', { scope: ['profile'] }));
 
 router.get('/google', (req:any, res:any, next:NextFunction) => {
-  const { codeVerifier, codeChallenge } = generatePKCE();
-
+let { codeVerifier, codeChallenge } = generatePKCE();
+codeVerifierGlobal=codeVerifier
   // Store the code verifier in the session or globally
   req.session.codeVerifier = codeVerifier;
 
@@ -28,7 +30,7 @@ router.get('/google', (req:any, res:any, next:NextFunction) => {
 
 
 router.get('/google/callback', (req:any, res:any, next:NextFunction) => {
-  const storedCodeVerifier = req.session.codeVerifier;
+  const storedCodeVerifier = codeVerifierGlobal;
 
   // Pass the code verifier to the token exchange process
   passport.authenticate('google', {
