@@ -1,45 +1,36 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs"
 import { session } from "passport";
-import { generatePKCE } from "../config/pkce-utils";
 const express= require('express');
 const passport = require('passport');
 const user = require('../models/user');
 const jwt = require("jsonwebtoken");
 const router= express.Router();
-// const crypto = require("crypto");
-let codeVerifierGlobal: string;
-// let codeChallenge: string;
-
+const crypto = require("crypto");
+// const codeVerifier = crypto.randomBytes(32).toString('hex');
 // router.get('/google',
 //   passport.authenticate('google', { scope: ['profile'] }));
 
-router.get('/google', (req:any, res:any, next:NextFunction) => {
-let { codeVerifier, codeChallenge } = generatePKCE();
-codeVerifierGlobal=codeVerifier
-  // Store the code verifier in the session or globally
-  req.session.codeVerifier = codeVerifier;
-
-  // Redirect to Google's OAuth endpoint with the code challenge
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256',
-  })(req, res, next);
-});
+// router.get('/google', (req:any, res:any, next:NextFunction) => {
 
 
-router.get('/google/callback', (req:any, res:any, next:NextFunction) => {
-  const storedCodeVerifier = req.session.codeVerifier;
-  
-  if (!storedCodeVerifier) {
-    return res.status(400).send(`Missing code verifier ${storedCodeVerifier}`);
-  }
-  // Pass the code verifier to the token exchange process
-  passport.authenticate('google', {
-    code_verifier: storedCodeVerifier
-  })(req, res, next);
-});
+
+//   passport.authenticate('google', {
+//       scope: ['profile', 'email'],
+
+//   })(req, res, next);
+// });
+
+router.get('/google',
+  passport.authenticate('google', { scope: ['profile'] }));
+
+
+router.get('/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req:any, res:any) => {
+    // Successful authentication, redirect home.
+    res.send(req);
+  });
 
 
 // router.get('/google/callback', 

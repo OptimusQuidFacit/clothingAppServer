@@ -1,4 +1,4 @@
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const LocalStrategy= require('passport-local').Strategy;
 const JwtStrategy= require('passport-jwt').Strategy;
 const ExtractJwt= require('passport-jwt').ExtractJwt;
@@ -23,11 +23,11 @@ const jwtOptions = {
 
 module.exports = (passport:any) => {
     passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        clientID: "294634965328-ik1md3ju1009cl8sbq0vjvkcskqhv068.apps.googleusercontent.com",
+        clientSecret: "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",
         callbackURL: "https://clothing-app-server.vercel.app/auth/google/callback",
         passReqToCallback: true, // Enable passing request object to callback
-        codeChallengeMethod: 'S256' //Required if using PKCE
+        // codeChallengeMethod: 'S256' //Required if using PKCE
       },
       async (req:any, accessToken:any, refreshToken:any, profile:any, cb:any) => {
         try {
@@ -79,8 +79,6 @@ module.exports = (passport:any) => {
         process.nextTick(() => {
             return cb(null, {
                 id: user.id,
-                username: user.username,
-                picture: user.picture
             });
         });
     });
