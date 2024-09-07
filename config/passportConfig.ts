@@ -23,8 +23,8 @@ const jwtOptions = {
 
 module.exports = (passport:any) => {
     passport.use(new GoogleStrategy({
-        clientID: "294634965328-ik1md3ju1009cl8sbq0vjvkcskqhv068.apps.googleusercontent.com",
-        clientSecret: "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",
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "https://clothing-app-server.vercel.app/auth/google/callback",
         passReqToCallback: true, // Enable passing request object to callback
         // codeChallengeMethod: 'S256' //Required if using PKCE
