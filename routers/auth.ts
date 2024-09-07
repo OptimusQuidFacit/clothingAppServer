@@ -29,8 +29,8 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req:any, res:any) => {
     // Successful authentication, redirect home.
-    const {redirectUri} = req.query.redirect_uri;
-    res.redirect(`${redirectUri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+    const {redirect_uri} = req.query;
+    res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
     res.send(req.user);
   });
 
