@@ -29,7 +29,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req:any, res:any) => {
     // Successful authentication, redirect home.
-    res.send(req);
+    res.send(req.user);
   });
 
 
