@@ -31,7 +31,7 @@ router.get('/google/callback',
     // Successful authentication, redirect home.
     const {redirect_uri} = req.query;
     res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
-    res.send(req.user);
+    // res.send(req.user);
   });
 
 
