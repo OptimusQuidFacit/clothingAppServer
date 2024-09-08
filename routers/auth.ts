@@ -60,31 +60,32 @@ router.get('/google',
   
       if (!findUser) {
         // Step 4: If user doesn't exist, create a new user
-        let newUser = new user({
+        findUser = new user({
           googleId: googleUser.id,
           email: googleUser.email,
           firstName: googleUser.given_name,
           lastName: googleUser.family_name,
           profilePicture: googleUser.picture,
         });
-        await newUser.save();
+        await findUser.save();
       }
   
       // Step 5: Generate a JWT token for the user
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
+      const token = jwt.sign({ id: findUser._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
   
       // Step 6: Respond with the token and user data
       if (redirectUri) {
-        res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+        res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(findUser))}`);
       } else {
-        res.json({ token, user });
+        res.json({ token, findUser });
       }
   
     } catch (error) {
-      console.error('Error during Google authentication:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      console.error('Error during Google authentication:', error.response?.data || error.message);
+      res.status(500).json({ message: 'Internal server error', error: error.response?.data });
     }
   });
+  
 
 // router.get('/google/callback', 
 //   passport.authenticate('google', { failureRedirect: '/' }),
