@@ -37,7 +37,7 @@ router.get('/google',
         const token = jwt.sign({ id: user._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
   
         // Extract the redirect URI (from mobile app, passed in the query params)
-        const { redirectUri } = req.query;
+        // const { redirectUri } = req.query;
   
         // Respond with the token and user data
         // if (redirectUri) {
