@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs"
 import { session } from "passport";
+import axios from "axios";
 const express= require('express');
 const passport = require('passport');
 const user = require('../models/user');
@@ -27,32 +28,63 @@ router.get('/google',
 
 
   router.get('/google/callback', async (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('google', { failureRedirect: '/' }, async (err: any, user: any) => {
-      if (err || !user) {
-        return res.status(401).json({ message: "Authentication failed" });
+    const { code, redirectUri } = req.query;  // Extract the authorization code and redirectUri from the client request
+    
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code is required' });
+    }
+  
+    try {
+      // Step 1: Exchange authorization code for access token
+      const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      });
+  
+      const { access_token, id_token } = tokenResponse.data;
+  
+      // Step 2: Fetch user info from Google API using access_token
+      const userResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+  
+      const googleUser = userResponse.data;
+  
+      // Step 3: Check if user exists in your database
+      let findUser = await user.findOne({ googleId: googleUser.id });
+  
+      if (!findUser) {
+        // Step 4: If user doesn't exist, create a new user
+        let newUser = new user({
+          googleId: googleUser.id,
+          email: googleUser.email,
+          firstName: googleUser.given_name,
+          lastName: googleUser.family_name,
+          profilePicture: googleUser.picture,
+        });
+        await newUser.save();
       }
   
-      try {
-        // Generate JWT Token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
+      // Step 5: Generate a JWT token for the user
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
   
-        // Extract the redirect URI (from mobile app, passed in the query params)
-        // const { redirectUri } = req.query;
-  
-        // Respond with the token and user data
-        // if (redirectUri) {
-        //   res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
-        // } else {
-          res.json({ token, user });
-        // }
-  
-      } catch (err) {
-        console.error("Error during authentication:", err);
-        res.status(500).json({ message: "Internal server error" });
+      // Step 6: Respond with the token and user data
+      if (redirectUri) {
+        res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+      } else {
+        res.json({ token, user });
       }
-    })(req, res, next);
+  
+    } catch (error) {
+      console.error('Error during Google authentication:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   });
-  
 
 // router.get('/google/callback', 
 //   passport.authenticate('google', { failureRedirect: '/' }),
