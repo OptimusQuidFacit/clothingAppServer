@@ -25,18 +25,47 @@ router.get('/google',
   passport.authenticate('google', { scope: ['profile'] }));
 
 
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req:any, res:any) => {
-    // Successful authentication, redirect home.
-    // const {redirect_uri} = req.query;
-    // res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
-    // res.send(req.user);
-    let user = req.user
-    let token= jwt.sign({id:user._id}, process.env.JWT_SEC, {expiresIn: "3d"})
-    res.json({ token, user });
 
+  router.get('/google/callback', async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('google', { failureRedirect: '/' }, async (err: any, user: any) => {
+      if (err || !user) {
+        return res.status(401).json({ message: "Authentication failed" });
+      }
+  
+      try {
+        // Generate JWT Token
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SEC || "defaultSecret", { expiresIn: "3d" });
+  
+        // Extract the redirect URI (from mobile app, passed in the query params)
+        const { redirectUri } = req.query;
+  
+        // Respond with the token and user data
+        if (redirectUri) {
+          res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+        } else {
+          res.json({ token, user });
+        }
+  
+      } catch (err) {
+        console.error("Error during authentication:", err);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    })(req, res, next);
   });
+  
+
+// router.get('/google/callback', 
+//   passport.authenticate('google', { failureRedirect: '/' }),
+//   (req:any, res:any) => {
+//     // Successful authentication, redirect home.
+//     // const {redirect_uri} = req.query;
+//     // res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+//     // res.send(req.user);
+//     let user = req.user
+//     let token= jwt.sign({id:user._id}, process.env.JWT_SEC, {expiresIn: "3d"})
+//     res.json({ token, user });
+
+//   });
 
 
 // router.get('/google/callback', 
