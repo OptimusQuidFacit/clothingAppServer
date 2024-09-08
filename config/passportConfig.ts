@@ -29,8 +29,8 @@ module.exports = (passport:any) => {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "https://clothing-app-server.vercel.app/auth/google/callback",
         passReqToCallback: true, // Enable passing request object to callback
-        state:true
-        // codeChallengeMethod: 'S256' //Required if using PKCE
+        state:true,
+        codeChallengeMethod: 'S256' //Required if using PKCE
       },
       async (req:any, accessToken:any, refreshToken:any, profile:any, cb:any) => {
         try {
