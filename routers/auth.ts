@@ -40,11 +40,11 @@ router.get('/google',
         const { redirectUri } = req.query;
   
         // Respond with the token and user data
-        if (redirectUri) {
-          res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
-        } else {
+        // if (redirectUri) {
+        //   res.redirect(`${redirectUri}?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+        // } else {
           res.json({ token, user });
-        }
+        // }
   
       } catch (err) {
         console.error("Error during authentication:", err);
