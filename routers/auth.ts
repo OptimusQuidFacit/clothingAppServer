@@ -29,9 +29,13 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req:any, res:any) => {
     // Successful authentication, redirect home.
-    const {redirect_uri} = req.query;
-    res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+    // const {redirect_uri} = req.query;
+    // res.redirect(`${redirect_uri}?success=true&user=${encodeURIComponent(JSON.stringify(req.user))}`);
     // res.send(req.user);
+    let user = req.user
+    let token= jwt.sign({id:user._id}, process.env.JWT_SEC, {expiresIn: "3d"})
+    res.json({ token, user });
+
   });
 
 
