@@ -28,8 +28,8 @@ router.get('/google',
 
 
   router.get('/google/callback', async (req: Request, res: Response, next: NextFunction) => {
-    const { code, redirectUri } = req.query;  // Extract the authorization code and redirectUri from the client request
-    
+    const { code, redirectUri } = req.params;  // Extract the authorization code and redirectUri from the client request
+    console.log(code);
     if (!code) {
       return res.status(400).json({ error: 'Authorization code is required' });
     }
