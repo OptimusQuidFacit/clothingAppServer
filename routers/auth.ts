@@ -88,7 +88,7 @@ router.get('/google',
   
 
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/' }),
+  passport.authenticate('google'),
   (req:any, res:any) => {
     // Successful authentication, redirect home.
     // const {redirect_uri} = req.query;
